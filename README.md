@@ -1,4 +1,4 @@
-# Predicting SPY
+# Predicting an exchange-traded fund
 The objective of this project is to predict the movement of the exchange-traded fund SPY, which is based on the S&P 500. We will use our predictor to predict if SPY will go up or down over the last 126 days (~2 quarters in trading days) and then compare it to what actually happened. We will do this by predicting what will happen each day for every stock which composes the S&P 500 and then take an average of the all stocks in a given day. The we will make some projections as what we may expect if we use this model to play the market. 
 
 ## The Data
