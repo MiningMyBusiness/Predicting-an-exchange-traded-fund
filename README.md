@@ -33,7 +33,7 @@ We do this by collecting the proportional movement of SPY every day (1 is no mov
 
 Model: 1.113
 
-Niave: 1.086
+Naive: 1.086
 
 So following this strategy, we would have performed 2.7% above market over the last two quarters. This isn't bad but may not be as high as we expect because the stock actually went up when we predicted it would go down so we lost out on those gains by selling at those times. 
 
