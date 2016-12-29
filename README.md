@@ -32,6 +32,7 @@ Here we test what would have happened over the last 126 days if we actually had 
 We do this by collecting the proportional movement of SPY every day (1 is no movement, > 1 is up, and < 1 is down) over the last 126 days and store it in a vector. We compare this to the porportional movement of SPY only on the days our model would have predicted 'Up'. The product of each of these vectors is the total proportional gain we would have had over the last two quarters if we followed that investment strategy. Here is the result:
 
 Model: 1.113
+
 Niave: 1.086
 
 So following this strategy, we would have performed 2.7% above market over the last two quarters. This isn't bad but may not be as high as we expect because the stock actually went up when we predicted it would go down so we lost out on those gains by selling at those times. 
