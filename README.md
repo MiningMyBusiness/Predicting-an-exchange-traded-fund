@@ -1,8 +1,8 @@
 # Predicting an exchange-traded fund
-The objective of this project is to predict the movement of the exchange-traded fund SPY, which is based on the S&P 500. We will use our predictor to predict if SPY will go up or down over the last 126 days (~2 quarters in trading days) and then compare it to what actually happened. We will do this by predicting what will happen each day for every stock which composes the S&P 500 and then take an average of the all stocks in a given day. The we will make some projections as what we may expect if we use this model to play the market. 
+The objective of this project is to predict the movement of the exchange-traded fund SPY, which is based on the S&P 500. We will use our predictor to predict if SPY will go up or down over the last 126 days (~2 quarters in trading days) and then compare it to what actually happened. We will do this by predicting what will happen each day for every stock which composes the S&P 500 and then take an average of the all stocks in a given day. Then we will make some projections as to what we may expect if we use this model to play the market. 
 
 ## The Data
-The data provided (SP500.zip) is a folder of .csv files containing historical data from all of the tickers (425 total) in the S&P 500 from Jan 1, 2010 until Dec 28, 2016. This data was downloaded using a variant of some python code that you will find in a different repo called [SP-500-Data-Puller](https://github.com/MiningMyBusiness/SP500-Data-Puller). The code in SP-500-Data-Puller can be easily changed to also get the historical data for SPY. We are going to try to predict the last 126 days of this ETF. The historical data for SPY is also included in the data for a grand total of 426 files. 
+The data provided (SP500.zip) is a folder of .csv files containing historical data from all of the tickers (425 total) in the S&P 500 from Jan 1, 2010 until Dec 28, 2016. This data was downloaded using a variant of some python code that you will find in a different repo called [SP-500-Data-Puller](https://github.com/MiningMyBusiness/SP500-Data-Puller). The code in SP-500-Data-Puller can be easily changed to also get the historical data for SPY. We are going to predict the last 126 days of this ETF. The historical data for SPY is also included in the data for a grand total of 426 files. 
 
 #### Note: 
 Be forewarned that this data is based on the composition of the S&P 500 on Dec 28, 2016. Some of these tickers may not have been in the S&P 500 in 2010. In our following analysis, we will exclude companies who do not have ticker data going far enough back in time. 
@@ -27,7 +27,7 @@ Next we take the average percent movement of all the stocks for a given day. If 
 This is a 63.7% over all accuracy rate. This is a statistically significant result with a p-value of 0.003 suggesting that this model is able to predict the movement of SPY. However, the model is slightly better at predicting when the stock will go up (68.3% accruate) than when it will go down (57.6%). 
 
 ### Section 4: Comparing the model and the naive the investment strategies
-Here we test what would have happened over the last 126 days if we actually had used this model to bet on SPY. We compare this result to what would have happened if we just leave our money in SPY for the same about of time without buying and selling when our model told us to. 
+Here we test what would have happened over the last 126 days if we actually had used this model to bet on SPY. We compare this result to what would have happened if we just left our money in SPY for the same about of time without buying and selling when our model told us to. 
 
 We do this by collecting the proportional movement of SPY every day (1 is no movement, > 1 is up, and < 1 is down) over the last 126 days and store it in a vector. We compare this to the porportional movement of SPY only on the days our model would have predicted 'Up'. The product of each of these vectors is the total proportional gain we would have had over the last two quarters if we followed that investment strategy. Here is the result:
 
@@ -50,3 +50,6 @@ So with this model one should be able to consistently beat the market (the model
 #### Warnings:
 * The numerical results of the Monte Carlo may be slightly different when you run your code since this is a random sampling method. However, the general conclusions will still be the same. 
 * The results may be even more different if you choose to test a different set of 126 days than I did. However, in my experience this model is about 60-65% accurate regardless of which stretch of 126 days are tested. 
+
+## The Future
+Anyone could easily implement this for any exchange-traded fund as long as they knew the holdings of that fund and the weight of the those holdings. For instance, I've tried this algorithm with XLE, enery-sector exchange traded fund from SPDR, with some success. One could potentially scrape this [Wikipedia list of American ETFs](https://en.wikipedia.org/wiki/List_of_American_exchange-traded_funds) and query the website of the financial firm which runs the ETF to get the holdings and run this code to see how it performs. 
