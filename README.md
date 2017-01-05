@@ -8,6 +8,7 @@ The data is provided as zip folder with .csv files containing historical data fr
 Be forewarned that this data is based on the composition of the S&P 500 on Dec 28, 2016. Some of these tickers may not have been in the S&P 500 in 2010. In our following analysis, we will exclude companies who do not have ticker data going far enough back in time. 
 
 ## The Code
+
 ### Section 1: Read data
 The first section of the code reads in the historical data of one ticker. It excludes tickers which do not have a sufficient amount of historical data (in this case, before 2014). It aggregates the daily closing price data of the ticker over the last few years into one vector.
 
