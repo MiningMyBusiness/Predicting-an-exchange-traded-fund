@@ -2,7 +2,7 @@
 The objective of this project is to predict the movement of the exchange-traded fund SPY, which is based on the S&P 500. We will use our predictor to predict if SPY will go up or down over the last 126 days (~2 quarters in trading days) and then compare it to what actually happened. We will do this by predicting what will happen each day for every stock which composes the S&P 500 and then take an average of the all stocks in a given day. Then we will make some projections as to what we may expect if we use this model to play the market. 
 
 ## The Data
-The data is provided as zip folder with .csv files containing historical data from all of the tickers (506 total) in the S&P 500 from Jan 6, 2010 until Jan 6, 2014. This data was downloaded using a variant of some python code that you will find in a different repo called [SP-500-Data-Puller](https://github.com/MiningMyBusiness/SP500-Data-Puller). The code in SP-500-Data-Puller can be easily changed to also get the historical data for SPY. We are going to predict the last 126 days of this ETF. The historical data for SPY is also included in the data for a grand total of 507 files. 
+The data is provided as zip folder with .csv files containing historical data from all of the tickers (505 total) in the S&P 500 from Jan 6, 2010 until Jan 6, 2014. This data was downloaded using a variant of some python code that you will find in a different repo called [SP-500-Data-Puller](https://github.com/MiningMyBusiness/SP500-Data-Puller). The code in SP-500-Data-Puller can be easily changed to also get the historical data for SPY. We are going to predict the last 126 days of this ETF. The historical data for SPY is also included in the data for a grand total of 506 files. 
 
 #### Note: 
 Be forewarned that this data is based on the composition of the S&P 500 on Dec 28, 2016. Some of these tickers may not have been in the S&P 500 in 2010. In our following analysis, we will exclude companies who do not have ticker data going far enough back in time. 
@@ -15,7 +15,7 @@ The first section of the code reads in the historical data of one ticker. It exc
 ### Section 2: Holt-Winters time series analysis
 This part fits a Holt-Winters exponential smoothing model to the time series data of the daily closing price of the ticker for about two years of data and uses it to predict the percent movement of the stock on the next day. It does this for 126 days (2 quarters in trading days) previous to Jan 5, 2016. 
 
-*Sections 1 and 2 are repeated for every stock in the S&P 500 of which there are 506. The data is stored in a 506 by 126 matrix (n_stocks by n_days). For each stock, there are 126 days of predictions.*
+*Sections 1 and 2 are repeated for every stock in the S&P 500 of which there are 506. The data is stored in a 505 by 126 matrix (n_stocks by n_days). For each stock, there are 126 days of predictions.*
 
 ### Section 3: The prediction and comparison
 Next we take the average percent movement of all the stocks for a given day for every day of prediction. This will be our Holt-Winter's estimate. Next we, compare this to what actually happened to SPY for last 126 days by reading in the historical data and determining whether the stock went up or down. 
