@@ -61,11 +61,10 @@ for (i in myStart:myEnd) {
 }
 
 ### Section 3: The prediction and comparison
+# compute mean estimate for each of the 126 days based on the Holt Winter's model
 spScore = 0
-spGuess = 0
 for (j in 1:modelDays) {
 	spScore[j] = mean(myPredScores[j,])
-	spGuess[j] = (spScore[j] > 0) # vector of predictions for SPY for the last 126 days
 }
 
 myData = read.csv("SPY.csv") # read in SPY data
@@ -94,11 +93,44 @@ last100Diff = (dailyClose[dayOfStart:dayOfEnd] - dailyClose[dayBeforeStart:dayBe
 last100Act = rep(0,length(last100Diff))
 last100Act[which(last100Diff > 0)] = 1 # the actual change in SPY over the last 126 days
 
+# compute sensitivity and specificty of this model
+scoreDiff = max(spScore) - min(spScore)
+myDivis = 1000
+scoreSeq = seq(min(spScore) + (scoreDiff/myDivis),max(spScore) - (scoreDiff/myDivis),
+			scoreDiff/myDivis)
+truePos = 0
+trueNeg = 0
+for (i in 1:length(scoreSeq)) {
+	fakeGuess = rep(0,length(spScore))
+	fakeGuess[which(spScore > scoreSeq[i])] = 1
+	confMat = xtabs(~fakeGuess + last100Act)
+	truePos[i] = confMat[2,2]/sum(confMat[,2])
+	trueNeg[i] = confMat[1,1]/sum(confMat[,1])
+}
+
+# plot sensitvity and specificity curve
+plot(scoreSeq, truePos, type = 'l', lwd = 2, col = 4, xlab = 'Holt Winters Estimate', ylab = 'Proportion')
+lines(scoreSeq, trueNeg, lwd = 2, col = 2)
+title('Specificity vs. Sensitivity')
+legend('topright',c('True Positive', 'True Negative'), text.col = c(4,2))
+
+# find and plot the point of intersection for the two curves
+trueDiffs = abs(truePos - trueNeg)
+myThreshIndx = which(trueDiffs == min(trueDiffs))
+points(scoreSeq[myThreshIndx], (truePos[myThreshIndx] + trueNeg[myThreshIndx])/2, pch = "O", col = 1, cex = 2)
+abline(v = scoreSeq[myThreshIndx], lty = 2)
+
+# compute the confusions matrix for based on the ideal threshold score
+myThresh = scoreSeq[myThreshIndx]
+spGuess = rep(0,length(spScore))
+spGuess[which(spScore > myThresh)] = 1
+
 print('Confusion Matrix')
 xtabs(~spGuess + last100Act)
 
 ### Section 4: Comparing the model and naive investment strategies
 modelInt = last100Diff[which(spGuess == 1)] + 1
+nonModelInt = last100Diff[which(spGuess == 0)] + 1
 naiveInt = last100Diff + 1
 
 print('Model')
@@ -107,35 +139,78 @@ prin('Naive')
 prod(naiveInt)
 
 ### Section 5: Projecting into the future
+# compute monthly return through bootstrapping daily model and naive returns
+modelMonthReturn = 0
+naiveMonthReturn = 0
+
+for (k in 1:1000) {
+	tradeDays = sum(runif(21,0,1) < (length(modelInt)/length(naiveInt)))
+	modelIntSample = sample(modelInt, tradeDays, replace = TRUE)
+	naiveIntSample = c(modelIntSample, sample(nonModelInt, 21 - tradeDays, replace = TRUE))
+	modelMonthReturn[k] = prod(modelIntSample)
+	naiveMonthReturn[k] = prod(naiveIntSample)
+}
+
+# compute quarterly returns by bootstrapping monthly returns
 modelQuarterReturn = 0
 naiveQuarterReturn = 0
 
-for (k in 1:200) {
-	tradeDays = sum(runif(63,0,1) < (length(modelInt)/length(naiveInt)))
-	modelQuarterReturn[k] = prod(rnorm(tradeDays, mean(modelInt), sd(modelInt)))
-	naiveQuarterReturn[k] = prod(rnorm(63, mean(naiveInt), sd(naiveInt)))
+for (k in 1:2000) {
+	modelQuarterReturn[k] = prod(sample(modelMonthReturn, 3, replace = TRUE))
+	naiveQuarterReturn[k] = prod(sample(naiveMonthReturn, 3, replace = TRUE))
 }
 
-print('Model Mean and Standard Deviation for Quarter')
-mean(modelQuarterReturn)
-sd(modelQuarterReturn)
-
-print('Naive Mean and Standard Deviation for Quarter')
-mean(naiveQuarterReturn)
-sd(naiveQuarterReturn)
-
+# compute yearly returns by bootstrapping quarterly returns
 modelYearReturn = 0
 naiveYearReturn = 0
 
-for (k in 1:200) {
-	modelYearReturn[k] = prod(rnorm(4, mean(modelQuarterReturn), sd(modelQuarterReturn)))
-	naiveYearReturn[k] = prod(rnorm(4, mean(naiveQuarterReturn), sd(naiveQuarterReturn)))
+for (k in 1:2000) {
+	modelYearReturn[k] = prod(sample(modelQuarterReturn, 4, replace = TRUE))
+	naiveYearReturn[k] = prod(sample(naiveQuarterReturn, 4, replace = TRUE))
 }
 
-print('Model Mean and Standard Deviation for Year')
-mean(modelYearReturn)
-sd(modelYearReturn)
+# compute the likelihood of beating the market over a quarter and a year
+#	 by random sampling and comparison
+beatMarketYear = 0
+beatMarketQuarter = 0
+for (k in 1:2000) {
+	# for the quarter
+	modelSample = sample(modelQuarterReturn, 1)
+	naiveSample = sample(naiveQuarterReturn, 1)
+	beatMarketQuarter[k] = 0
+	if (modelSample > naiveSample) {
+		beatMarketQuarter[k] = 1
+	}
 
-print('Naive Mean and Standard Deviation for Year')
-mean(naiveYearReturn)
-sd(naiveYearReturn)
+	# for the year
+	modelSample = sample(modelYearReturn, 1)
+	naiveSample = sample(naiveYearReturn, 1)
+	beatMarketYear[k] = 0
+	if (modelSample > naiveSample) {
+		beatMarketYear[k] = 1
+	}
+}
+
+# generate boxplots with summary results
+quarterBeatMarket = sum(beatMarketQuarter)/2000
+myQuarterSub = c(as.character(quarterBeatMarket*100), '% chance of beating the market over 1 quarter')
+myQuarterSub = paste(myQuarterSub, collapse = ' ')
+
+yearBeatMarket = sum(beatMarketYear)/2000
+myYearSub = c(as.character(yearBeatMarket*100), '% chance of beating the market over 1 year.')
+myYearSub = paste(myYearSub, collapse = ' ')
+
+quantile(modelYearReturn)
+quantile(naiveYearReturn)
+
+dev.new()
+boxplot(modelQuarterReturn,naiveQuarterReturn, main = "Quarterly Returns", sub = myQuarterSub, ylab = "Proportional Return")
+abline(h = 1.0)
+axis(1, at = c(1, 2), labels = c('Model', 'Naive'))
+
+dev.new()
+boxplot(modelYearReturn,naiveYearReturn, main = "Yearly Returns", sub = myYearSub, ylab = "Proportional Return")
+abline(h = 1.0)
+axis(1, at = c(1, 2), labels = c('Model', 'Naive'))
+
+
