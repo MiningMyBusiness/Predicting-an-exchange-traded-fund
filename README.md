@@ -34,27 +34,30 @@ The intersection of the true positive and true negative curves is the ideal deci
 This is a 61.9% over all accuracy rate. This is a statistically significant result with a p-value of 0.008 suggesting that this model is able to predict the movement of SPY. However, the model is slightly better at predicting when the stock will go up (64.6% accruate), than when it will go down (59%). 
 
 ### Section 4: Comparing the model and the naive the investment strategies
-Here we test what would have happened over the last 126 days if we actually had used this model to bet on SPY. We compare this result to what would have happened if we just left our money in SPY for the same about of time without buying and selling when our model told us to. 
+Here we test what would have happened over the last 126 days if we actually had used this model to bet on SPY. We compare this result to what would have happened if we just left our money in SPY for the same amount of time without buying and selling when our model told us to. 
 
-We do this by collecting the proportional movement of SPY every day (1 is no movement, > 1 is up, and < 1 is down) over the last 126 days and store it in a vector. We compare this to the porportional movement of SPY only on the days our model would have predicted 'Up'. The product of each of these vectors is the total proportional gain we would have had over the last two quarters if we followed that investment strategy. Here is the result:
+We do this by collecting the proportional movement of SPY every day (1 is no movement, > 1 is up, and < 1 is down) over the last 126 days and store it in a vector. We compare this to the porportional movement of SPY only on the days our model would have predicted 'Up'. The two products of all elements in each vector are the total proportional gains we would have had over the last two quarters if we followed that investment strategy. Here is the result:
 
 Model: 1.110
 
 Naive: 1.076
 
-So following this strategy, we would have performed 3.4% above market over the last two quarters. This isn't bad but may not be as high as we expect because the stock actually went up when we predicted it would go down so we lost out on those gains by selling at those times. 
+So following the model strategy presented here, we would have performed 3.4% above market over the last two quarters. This isn't bad but may not be as high as we expect. This could be because the stock actually went up when we predicted it would go down so we lost out on those gains by selling at those times. 
 
 ### Section 5: Projecting into the future
-Now we try to get an estimate for what we can expect if we were to follow this investment strategy for the next quarter and the next year. We can do this with a [Bootstrapping method](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)). We resample our distributions of daily proportional changes for our model and naive investment strategies to generate different scenarios going forward in time. We account for the fact that with our model we are only betting about half of the time since we only bet when we say it goes up. We simulte 1000 potential future outcomes over 1 month, which we then bootstrap to simulate 2000 potential outcomes over 1 quarter and 1 full year. Here are the distributions of the quarterly and yearly returns made with each strategy:
+Now we try to get an estimate for what we can expect if we were to follow this investment strategy for the next quarter and the next year. We can do this with a [Bootstrapping method](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)). We resample our distributions of daily proportional changes for our model and naive investment strategies to generate different scenarios going forward in time. We account for the fact that with our model we are only betting about half of the time since we only bet when we say it goes up. We simulate 1000 potential future outcomes over 1 month, which we then bootstrap to simulate 2000 potential outcomes over 1 quarter and 1 full year. Here are the distributions of the quarterly and yearly returns made with each strategy:
 
 ![alt text](https://github.com/MiningMyBusiness/Predicting-an-exchange-traded-fund/raw/master/QuarterlyReturns.png "Quarterly Returns")
 
 ![alt text](https://github.com/MiningMyBusiness/Predicting-an-exchange-traded-fund/raw/master/YearlyReturns.png "Yearly Returns")
 
-The median returns from the model are higher and the interquartile range is lower suggesting the model increases returns and reduces volatility. With this model, one has a 64.5% chance of beating the market over 1 quarter and a 72.5% of beating the market over 1 year. Moreover, it is highly unlikely that some one would lose money using this model over the next year (only 3 out of 2000 simulations over a year produced a return of less than 1). I'll be testing it out over the next quarter and year to see if this is indeed the case. 
+The median returns from the model are higher and the interquartile range is lower suggesting the model increases returns and reduces volatility. With this model, one has a 64.5% chance of beating the market over 1 quarter and a 72.5% of beating the market over 1 year. This was computed by randomly sampling each distribution 1000 times and seeing which times, the model strategy outperformed the naive strategy. 
+
+Moreover, it is highly unlikely that some one would lose money using this model over the next year (only 3 out of 2000 simulations over a year produced a return of less than 1). I'll be testing it out over the next quarter and year to see if this is indeed the case. 
 
 #### Warnings:
 * The numerical results of bootstrapping may be slightly different when you run your code since this is a random sampling method. However, the general conclusions will still be the same. 
+* Instead, of bootstrapping one could use a Monte Carlo approach by assuming distributions are Gaussian. However, this is not recommended as it will often ignore outliers. For a full discussion on the importance of outliers please refer to [Benoit Mandelbrot's book](https://www.amazon.com/Misbehavior-Markets-Fractal-Financial-Turbulence/dp/0465043577).
 * The results may be even more different if you choose to test a different set of 126 days than I did. However, in my experience this model is about 60-65% accurate regardless of which stretch of 126 days are tested. 
 * The future projections are based off of the S&P 500 performance over the last 2 quarters. If this performance changes signficantly, it will influence the future projections. 
 * Buying and selling this etf on a daily basis will incur fees which can offset the gains made from the model predictions. However, this can be addressed by using a free trading platfrom to buy stocks, like [Robinhood](https://www.robinhood.com/).
