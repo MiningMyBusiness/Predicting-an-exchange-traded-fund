@@ -57,7 +57,7 @@ Moreover, it is highly unlikely that some one would lose money using this model 
 
 #### Warnings:
 * The numerical results of bootstrapping may be slightly different when you run your code since this is a random sampling method. However, the general conclusions will still be the same. 
-* Instead, of bootstrapping one could use a Monte Carlo approach by assuming distributions are Gaussian. However, this is not recommended as it will often ignore outliers. For a full discussion on the importance of outliers please refer to [Benoit Mandelbrot's book](https://www.amazon.com/Misbehavior-Markets-Fractal-Financial-Turbulence/dp/0465043577).
+* Instead, of bootstrapping one could use a Monte Carlo approach by assuming distributions are Gaussian. However, this is not recommended as it will often ignore outliers. For a full discussion on the importance of outliers in financial predictions please refer to [Benoit Mandelbrot's book](https://www.amazon.com/Misbehavior-Markets-Fractal-Financial-Turbulence/dp/0465043577).
 * The results may be even more different if you choose to test a different set of 126 days than I did. However, in my experience this model is about 60-65% accurate regardless of which stretch of 126 days are tested. 
 * The future projections are based off of the S&P 500 performance over the last 2 quarters. If this performance changes signficantly, it will influence the future projections. 
 * Buying and selling this etf on a daily basis will incur fees which can offset the gains made from the model predictions. However, this can be addressed by using a free trading platfrom to buy stocks, like [Robinhood](https://www.robinhood.com/).
