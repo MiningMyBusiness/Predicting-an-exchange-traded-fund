@@ -1,6 +1,6 @@
-rm(list = ls())
+rm(list = ls()) # remove all variables from the workspace
 
-# Predict daily change in SPY using past data
+# Predict daily change in SPY using past data from S&P 500 companies
 # Date created: 12-8-2016
 # Author: Kiran D Bhattacharyya
 # License: MIT License
@@ -12,27 +12,24 @@ myFiles = dir(pattern = "\\.csv$") # find all files with .csv extension in the d
 modelDays = 126 # number of days to model
 
 myPredScores = matrix(0, nrow = modelDays, ncol = (length(myFiles) - 1)) # defining the matrix which will be populated with predictions
+# this matrix has dimensionality of Number of Days by Number of tickers 
+# each element in this matrix will be a prediction of the proportional 
+# change in a given ticker in the S&P500 for that day
 
+# variables that can control the iteration of the following forloop
 myStart = 1
 myEnd = length(myFiles)
 
-modelGain = 0
-modelDailySd = 0
-numOfBets = 0
-naiveGain = 0
-naiveSd = 0
-
 for (i in myStart:myEnd) {
-	### Section 1: Read data
-	#load in file of interest
-	currFile = myFiles[i]
-	myData = read.csv(currFile)
-	allDates = as.character(myData$Date)
+	### Section 1: Read data and load in file of interest
+	currFile = myFiles[i] # find file name in list of files
+	myData = read.csv(currFile) # load in file
+	allDates = as.character(myData$Date) # get the dates from the data
 	# dates of interest
-	myDOI = c("2014","2015","2016") # pull data since 2014
-	dailyClose = 0
-	if (length(which(grepl(myDOI[1],allDates))) > 0 & (currFile != "SPY.csv")) {
-	for (currDOI in 1:length(myDOI)) {
+	myDOI = c("2014","2015","2016") # pull data since 2014 CHANGE THIS AS YOU FEEL NECESSARY
+	dailyClose = 0 # create variable to store values
+	if (length(which(grepl(myDOI[1],allDates))) > 0 & (currFile != "SPY.csv")) { # if you have 3 years of data and the file is not the SPY index fund
+	for (currDOI in 1:length(myDOI)) { # get data from the table
 		dateIndx = which(grepl(myDOI[currDOI],allDates) == 1)
 		if (currDOI == 1 & length(dateIndx) > 0) {
 			dailyClose[1:length(dateIndx)] = myData$Close[dateIndx]
@@ -48,14 +45,16 @@ for (i in myStart:myEnd) {
 	investIter = 0
 	modelInt = 0
 	naiveInt = 0
-	for (mySlide in 1:modelDays) {
-		trainStart = mySlide
+	for (mySlide in 1:modelDays) { # for each of the days
+		# determine start and end of the training set
+		trainStart = mySlide 
 		trainEnd = length(dailyClose) - ((modelDays + 1) - mySlide)
 		
-		closeTimeSeries = ts(dailyClose[trainStart:trainEnd], frequency = 1)
-		closeForecast = HoltWinters(closeTimeSeries, beta = FALSE, gamma = FALSE)
-		closeForecast2 = predict(closeForecast, n.ahead = 1, prediction.interval = TRUE, level = 0.68)
-		myPredScores[mySlide,i] = (closeForecast2[1] - dailyClose[trainEnd])/dailyClose[trainEnd]
+		# train a holt-winters model to detect what would happen that day
+		closeTimeSeries = ts(dailyClose[trainStart:trainEnd], frequency = 1) # define a time series object in R
+		closeForecast = HoltWinters(closeTimeSeries, beta = FALSE, gamma = FALSE) # create a holt-winters model with the time series
+		closeForecast2 = predict(closeForecast, n.ahead = 1, prediction.interval = TRUE, level = 0.68) # make a prediction with the holt-winters model
+		myPredScores[mySlide,i] = (closeForecast2[1] - dailyClose[trainEnd])/dailyClose[trainEnd] # find the proportional predicted change and store the value
 	}
 	}
 }
@@ -64,7 +63,7 @@ for (i in myStart:myEnd) {
 # compute mean estimate for each of the 126 days based on the Holt Winter's model
 spScore = 0
 for (j in 1:modelDays) {
-	spScore[j] = mean(myPredScores[j,])
+	spScore[j] = mean(myPredScores[j,]) # take the mean proportional change of all stocks to make a prediction for the index fund
 }
 
 myData = read.csv("SPY.csv") # read in SPY data
