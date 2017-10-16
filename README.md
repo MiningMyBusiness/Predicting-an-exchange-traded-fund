@@ -15,10 +15,10 @@ The first section of the code reads in the historical data of one ticker. It exc
 ### Section 2: Holt-Winters time series analysis
 This part fits a Holt-Winters exponential smoothing model to the time series data of the daily closing price of the ticker for about two years of data and uses it to predict the percent movement of the stock on the next day. It does this for 126 days (2 quarters in trading days) previous to Jan 5, 2016. 
 
-*Sections 1 and 2 are repeated for every stock in the S&P 500 of which there are 506. The data is stored in a 505 by 126 matrix (n_stocks by n_days). For each stock, there are 126 days of predictions.*
+*Sections 1 and 2 are repeated for every stock in the S&P 500 of which there are 505. The data is stored in a 505 by 126 matrix (n_stocks by n_days). For each stock, there are 126 days of predictions.*
 
 ### Section 3: The prediction and comparison
-Next we take the average percent movement of all the stocks for a given day for every day of prediction. This will be our Holt-Winter's estimate. Next we, compare this to what actually happened to SPY for last 126 days by reading in the historical data and determining whether the stock went up or down. 
+Next we take the average of the percent movement of all the stocks for a given day for every day of prediction. This will be our Holt-Winter's estimate for the movement of the SPY index fund. We compare this to what actually happened to SPY for last 126 days by reading in the historical data and determining whether the stock went up or down. 
 
 By using a sliding decision threshold in our Holt-Winter's estimate to predict if SPY went up or down, we construct a sensitivity vs. specificity curve. ([Wikipedia article for sensitivity and specificity](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)). 
 
@@ -33,8 +33,8 @@ The intersection of the true positive and true negative curves is the ideal deci
 
 This is a 61.9% over all accuracy rate. This is a statistically significant result with a p-value of 0.008 suggesting that this model is able to predict the movement of SPY. However, the model is slightly better at predicting when the stock will go up (64.6% accruate), than when it will go down (59%). 
 
-### Section 4: Comparing the model and the naive the investment strategies
-Here we test what would have happened over the last 126 days if we actually had used this model to bet on SPY. We compare this result to what would have happened if we just left our money in SPY for the same amount of time without buying and selling when our model told us to. 
+### Section 4: Comparing the model investment strategy with a naive investment strategy
+Here we test what would have happened over the last 126 days if we had actually used this model to bet on SPY. We compare this result to what would have happened if we just left our money in SPY for the same amount of time without buying and selling when our model told us to. 
 
 We do this by collecting the proportional movement of SPY every day (1 is no movement, > 1 is up, and < 1 is down) over the last 126 days and store it in a vector. We compare this to the porportional movement of SPY only on the days our model would have predicted 'Up'. The two products of all elements in each vector are the total proportional gains we would have had over the last two quarters if we followed that investment strategy. Here is the result:
 
@@ -61,7 +61,7 @@ Moreover, it is highly unlikely that some one would lose money using this model 
 * The results may be even more different if you choose to test a different set of 126 days than I did. However, in my experience this model is about 60-65% accurate regardless of which stretch of 126 days are tested. 
 * The future projections are based off of the S&P 500 performance over the last 2 quarters. If this performance changes signficantly, it will influence the future projections. 
 * Buying and selling this etf on a daily basis will incur fees which can offset the gains made from the model predictions. However, this can be addressed by using a free trading platfrom to buy stocks, like [Robinhood](https://www.robinhood.com/).
-* By betting on shorts and leverged etfs with this information you can increase gains significantly. 
+* By betting on shorts and leverged etfs with this information you can increase gains significantly. For instance, by buying short etfs when the model predicts the index will go down and 2X or 3X leveraged ETFs for the when it goes up, we can make even higher returns over the market.
 
 ## The Future
 Anyone could easily implement this for any exchange-traded fund as long as they knew the holdings of that fund and the weight of the those holdings. For instance, I've tried this algorithm with XLE -- enery-sector exchange traded fund from SPDR, XLV -- the healthcare sector etf from SPDR, and XHB -- the home-building index with some success. One could potentially scrape this [Wikipedia list of American ETFs](https://en.wikipedia.org/wiki/List_of_American_exchange-traded_funds) and query the website of the financial firm which runs the ETF to get the holdings and run this code to see how it performs. Of course, the ability to predict these stocks suggests that there are [market inefficiencies](https://en.wikipedia.org/wiki/Efficient-market_hypothesis). 
